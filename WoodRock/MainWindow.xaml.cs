@@ -43,16 +43,34 @@ namespace WoodRock
             model.SavedGame = savedGame;
             ReadFile();
             this.DataContext = model;
+
+
+            var fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            this.Title += " " + fvi.FileVersion;
             //this.DataContext = Units.OrderBy(x => x.UnitName);
 
-            var profCounts = Units.GroupBy(x => x.ProfessionName).Select(x => new { Name = x.Key, Count = x.Count() });
-            uxProfCounts.DataContext = profCounts;
+            //var profCounts = Units.GroupBy(x => x.ProfessionName).Select(x => new { Name = x.Key, Count = x.Count() });
+            //uxProfCounts.DataContext = profCounts;
 
-            uxSettelmentName.Content = model.SavedGame.SaveName;
+            //uxSettelmentName.Content = model.SavedGame.SaveName;
         }
 
         public void ReadFile()
         {
+            // Load Resources
+            var reFileLines = new List<string>();
+            using (StreamReader sr = new StreamReader(System.IO.Path.Combine(SavedGame.Path, "re.sav")))
+            {
+                while (!sr.EndOfStream)
+                {
+                    string line = sr.ReadLine();
+                    reFileLines.Add(line);
+                }
+            }
+            ResourceManager.LoadResources(reFileLines.ToArray());
+            
+            
+            // Load Units
             string path = System.IO.Path.Combine(SavedGame.Path, "un.sav");
             using (StreamReader sr = new StreamReader(path))
             {
@@ -67,13 +85,11 @@ namespace WoodRock
 
 
 
-            if (FileLines[0] != "[sfv = 1.5]")
-            {
-                throw new NotSupportedException("Only version 1.5 is supported");
-            }
+            //uxOutput.Text += ResourceManager.ResourceList.Count.ToString() + Environment.NewLine;
+            //uxOutput.Text += ResourceManager.GetSaveString() + Environment.NewLine;
 
-            Models.Preferences.startNewLoad(FileLines[1]);
 
+            
             int unitCnt = Convert.ToInt32(FileLines[2]);
             for (int i = 0; i < unitCnt; i++)
             {
@@ -103,60 +119,10 @@ namespace WoodRock
                 uxOutput.Text += "Name: " + unit[10] + Environment.NewLine;
 
                 //15 inventory
-                string[] inv1 = unit[15].Split('-');
-                if (inv1[0] != string.Empty)
+                foreach (var item in human.Inventory)
                 {
-                    string[] inv2 = inv1[0].Split('|');
-                    for (int idx2 = 0; idx2 < inv2.Length; ++idx2)
-                    {
-                        if (!(inv2[idx2] == string.Empty))
-                        {
-                            string[] inv3 = inv2[idx2].Split(',');
-                            if (!(inv3[0] == string.Empty) && !(inv3[1] == string.Empty))
-                            {
-                                int itemID = Convert.ToInt32(inv3[0][0]) - 128;
-                                int itemCnt = Convert.ToInt32(inv3[1][0]) - 128;
-
-                                uxOutput.Text += "INV: " + itemID.ToString() + "-" + itemCnt.ToString() + Environment.NewLine;
-                            }
-                        }
-                    }
-                }
-                if (inv1[1] != string.Empty)
-                {
-                    string[] inv2 = inv1[1].Split('|');
-                    for (int idx2 = 0; idx2 < inv2.Length; ++idx2)
-                    {
-                        if (!(inv2[idx2] == string.Empty))
-                        {
-                            string[] inv3 = inv2[idx2].Split(',');
-                            if (!(inv3[0] == string.Empty) && !(inv3[1] == string.Empty))
-                            {
-                                int itemID = Convert.ToInt32(inv3[0][0]) - 128;
-                                int itemCnt = Convert.ToInt32(inv3[1][0]) - 128;
-
-                                uxOutput.Text += "INV2: " + itemID.ToString() + "-" + itemCnt.ToString() + Environment.NewLine;
-                            }
-                        }
-                    }
-                }
-                
-
-                //16 x
-                uxOutput.Text += "X: " + (float.Parse(unit[16]) - 128f).ToString() + Environment.NewLine;
-
-                //17 y
-                uxOutput.Text += "Y: " + (float.Parse(unit[17]) - 128f).ToString() + Environment.NewLine;
-
-                //18 z
-                uxOutput.Text += "Z: " + (float.Parse(unit[18]) - 128f).ToString() + Environment.NewLine;
-
-                //19 euler
-                uxOutput.Text += "euler: " + (float.Parse(unit[19]) - 128f).ToString() + Environment.NewLine;
-
-                //20 time to eat
-                uxOutput.Text += "time to eat: " + (float.Parse(unit[20]) - 128f).ToString() + Environment.NewLine;
-
+                    uxOutput.Text += "INV: " + item.Key.ToString() + "-" + item.Value.ToString() + Environment.NewLine;
+                }           
 
                 Units.Add(human);
 
@@ -181,10 +147,20 @@ namespace WoodRock
 
         void SaveCmdExecuted(object target, ExecutedRoutedEventArgs e)
         {
-            String command, targetobj;
-            command = ((RoutedCommand)e.Command).Name;
-            targetobj = ((FrameworkElement)target).Name;
-            MessageBox.Show("The " + command + " command has been invoked on target object " + targetobj);
+            //String command, targetobj;
+            //command = ((RoutedCommand)e.Command).Name;
+            //targetobj = ((FrameworkElement)target).Name;
+            //MessageBox.Show("The " + command + " command has been invoked on target object " + targetobj);
+
+
+            // Save re.sav file
+            using (StreamWriter sw = new StreamWriter(System.IO.Path.Combine(SavedGame.Path, "re.sav")))
+            {
+                sw.Write(WoodRock.Utilities.ResourceManager.GetSaveFile());
+            }
+
+
+            MessageBox.Show(SavedGame.SaveName + " Saved.");
         }
 
 
@@ -196,7 +172,7 @@ namespace WoodRock
 
         void SaveCmdCanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
-            e.CanExecute = false;
+            e.CanExecute = true;
         }
 
 

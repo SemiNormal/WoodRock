@@ -10,7 +10,6 @@ namespace WoodRock.Models
         public string UnitName { get; set; }
         public int UnitType { get; set; }
         public float Hitpoints { get; set; }
-        public float Hunger { get; set; }
         public float XPos { get; set; }
         public float YPos { get; set; }
         public float ZPos { get; set; }

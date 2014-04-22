@@ -14,19 +14,26 @@ namespace WoodRock.Models
         public float Fatigue { get; set; }
         public float Hunger { get; set; }
         public float Morale { get; set; }
-        public int TimeToEat { get; set; }
+        public float TimeToEat { get; set; }
         public Gender Gender { get; set; }
         public Equipment Equipment { get; set; }
         public List<HumanSkill> Skills { get; set; }
         public string ProfessionName { get; set; }
         public Models.Preferences Preferences { get; private set; }
-
+        public float XPos { get; set; }
+        public float YPos { get; set; }
+        public float ZPos { get; set; }
+        public float Euler { get; set; }
+        public Dictionary<int, int> Inventory { get; set; }
+        public Dictionary<int, int> RequestedItems { get; set; }
 
         public Human()
         {
             Equipment = new Equipment();
             Skills = new List<HumanSkill>();
             Preferences = new Models.Preferences();
+            Inventory = new Dictionary<int, int>();
+            RequestedItems = new Dictionary<int, int>();
         }
 
 
@@ -77,19 +84,11 @@ namespace WoodRock.Models
             human.Preferences.loadSaveLine(unit[4]);
             //uxOutput.Text += "preferences: " + unit[4] + Environment.NewLine;
 
-            //5 item
+            // equipment
             human.Equipment.HandR.ItemId = (Convert.ToInt32(unit[5][0]) - 128);
-            
-            //6 item
             human.Equipment.HandL.ItemId = (Convert.ToInt32(unit[6][0]) - 128);
-            
-            //7 item
             human.Equipment.Helm.ItemId = (Convert.ToInt32(unit[7][0]) - 128);
-            
-            //8 item
             human.Equipment.Chest.ItemId = (Convert.ToInt32(unit[8][0]) - 128);
-            
-            //9 item
             human.Equipment.Boots.ItemId = (Convert.ToInt32(unit[9][0]) - 128);
             
             //10 name
@@ -122,6 +121,7 @@ namespace WoodRock.Models
                             // requested item
                             int itemID = Convert.ToInt32(inv3[0][0]) - 128;
                             int itemCnt = Convert.ToInt32(inv3[1][0]) - 128;
+                            human.RequestedItems.Add(itemID, itemCnt);
                         }
                     }
                 }
@@ -139,26 +139,23 @@ namespace WoodRock.Models
                             // inventory item
                             int itemID = Convert.ToInt32(inv3[0][0]) - 128;
                             int itemCnt = Convert.ToInt32(inv3[1][0]) - 128;
+                            human.Inventory.Add(itemID, itemCnt);
                         }
                     }
                 }
             }
 
 
-            //16 x
-            //uxOutput.Text += "X: " + (float.Parse(unit[16]) - 128f).ToString() + Environment.NewLine;
-
-            //17 y
-            //uxOutput.Text += "Y: " + (float.Parse(unit[17]) - 128f).ToString() + Environment.NewLine;
-
-            //18 z
-            //uxOutput.Text += "Z: " + (float.Parse(unit[18]) - 128f).ToString() + Environment.NewLine;
+            // x,y,z
+            human.XPos = float.Parse(unit[16]) - 128f;
+            human.YPos = float.Parse(unit[17]) - 128f;
+            human.ZPos = float.Parse(unit[18]) - 128f;
 
             //19 euler
-            //uxOutput.Text += "euler: " + (float.Parse(unit[19]) - 128f).ToString() + Environment.NewLine;
+            human.Euler = float.Parse(unit[19]) - 128f;
 
             //20 time to eat
-            //uxOutput.Text += "time to eat: " + (float.Parse(unit[20]) - 128f).ToString() + Environment.NewLine;
+            human.TimeToEat = float.Parse(unit[20]) - 128f;
 
             return human;
         }

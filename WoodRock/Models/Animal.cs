@@ -8,7 +8,6 @@ namespace WoodRock.Models
     public class Animal
     {
         public string UnitName { get; set; }
-        public float Hitpoints { get; set; }
         public float Hunger { get; set; }
         public float ResourceCounter1 { get; set; }
         public float ResourceCounter2 { get; set; }
@@ -40,7 +39,13 @@ namespace WoodRock.Models
             animal.Domesticated = bool.Parse(unit[9]);
             animal.Slaughter = bool.Parse(unit[10]);
             animal.IsDead = bool.Parse(unit[11]);
-            animal.TagDomesticated = bool.Parse(unit[12]);
+            try
+            {
+                animal.TagDomesticated = bool.Parse(unit[12]);
+            }
+            catch
+            {
+            }
 
             return animal;
         }

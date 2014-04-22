@@ -13,6 +13,10 @@ namespace WoodRock.Utilities
 
         public static void LoadUnits(string[] fileLines)
         {
+            HumanUnits.Clear();
+            AnimalUnits.Clear();
+            EnemyUnits.Clear();           
+            
             List<string> humanLines = new List<string>();
             List<string> animalLines = new List<string>();
             List<string> enemyLines = new List<string>();
